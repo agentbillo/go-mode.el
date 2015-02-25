@@ -20,6 +20,9 @@
 (require 'ring)
 (require 'url)
 
+(setq go-indent-amount 4)
+
+
 ;; XEmacs compatibility guidelines
 ;; - Minimum required version of XEmacs: 21.5.32
 ;;   - Feature that cannot be backported: POSIX character classes in
@@ -488,19 +491,19 @@ current line will be returned."
        ((looking-at "[])}]")
         (go-goto-opening-parenthesis)
         (if (go-previous-line-has-dangling-op-p)
-            (- (current-indentation) tab-width)
+            (- (current-indentation) go-indent-amount)
           (go--indentation-for-opening-parenthesis)))
        ((progn (go--backward-irrelevant t) (looking-back go-dangling-operators-regexp))
         ;; only one nesting for all dangling operators in one operation
         (if (go-previous-line-has-dangling-op-p)
             (current-indentation)
-          (+ (current-indentation) tab-width)))
+          (+ (current-indentation) go-indent-amount)))
        ((zerop (go-paren-level))
         0)
        ((progn (go-goto-opening-parenthesis) (< (go-paren-level) start-nesting))
         (if (go-previous-line-has-dangling-op-p)
             (current-indentation)
-          (+ (go--indentation-for-opening-parenthesis) tab-width)))
+          (+ (go--indentation-for-opening-parenthesis) go-indent-amount)))
        (t
         (current-indentation))))))
 
@@ -516,7 +519,7 @@ current line will be returned."
         (goto-char point)
       (setq indent (go-indentation-at-point))
       (if (looking-at (concat go-label-regexp ":\\([[:space:]]*/.+\\)?$\\|case .+:\\|default:"))
-          (decf indent tab-width))
+          (decf indent go-indent-amount))
       (setq shift-amt (- indent (current-column)))
       (if (zerop shift-amt)
           nil
@@ -875,7 +878,7 @@ with goflymake \(see URL `https://github.com/dougm/goflymake'), gocode
   (imenu-add-to-menubar "Index")
 
   ;; Go style
-  (setq indent-tabs-mode t)
+  (setq indent-tabs-mode nil)
 
   ;; Handle unit test failure output in compilation-mode
   ;;
